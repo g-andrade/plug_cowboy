@@ -26,7 +26,7 @@ defmodule Plug.Cowboy.Translator do
          extra,
          pid,
          {reason, {mod, :call, [%Plug.Conn{} = conn, _opts]}},
-         _stack
+         stack
        ) do
     if log_exception?(reason) do
       message = [
@@ -41,7 +41,7 @@ defmodule Plug.Cowboy.Translator do
 
       metadata =
         [
-          crash_reason: reason,
+          crash_reason: {reason, stack},
           domain: [:cowboy]
         ] ++ maybe_conn_metadata(conn)
 
@@ -61,7 +61,7 @@ defmodule Plug.Cowboy.Translator do
        extra,
        " terminated\n"
        | Exception.format_exit({reason, stack})
-     ], crash_reason: reason, domain: [:cowboy]}
+     ], crash_reason: {reason, stack}, domain: [:cowboy]}
   end
 
   defp log_exception?({%{__exception__: true} = exception, _}) do
